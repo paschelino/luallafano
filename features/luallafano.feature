@@ -18,7 +18,7 @@ Feature: Remember the previous command
             """
         And a luallafano prompt is shown
 
-        When I enter "n" into the luallfano prompt
+        When I enter "n" into the luallafano prompt
         Then a directory hierarchy is being created:
             """
             ~/.luallafano/echo
