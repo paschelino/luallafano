@@ -1,7 +1,7 @@
 # luallafano
 
 ## TODO
-- [ ] set up go module
+- [x] set up go module
 - [ ] set up cucumber for go
 - [ ] implement luallafano.feature up until the first prompt is shown
 - [ ] enter the new command's shortcut name until the second prompt is shown
