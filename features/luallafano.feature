@@ -13,7 +13,9 @@ Feature: Remember the previous command
         
         When I enter "e" into the luallafano prompt
         Then Luallafano informs the user:
-            "Do you want to customize the command (Y/n)?"
+            """
+            Do you want to customize the command (Y/n)?
+            """
         And a luallafano prompt is shown
 
         When I enter "n" into the luallfano prompt
