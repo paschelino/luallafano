@@ -7,4 +7,5 @@ require (
 	github.com/cucumber/messages-go/v10 v10.0.3
 	github.com/mtrense/soil v0.4.0 // indirect
 	github.com/thanhpk/randstr v1.0.4
+	honnef.co/go/tools v0.0.1-2019.2.3
 )

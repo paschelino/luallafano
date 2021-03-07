@@ -1,13 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 
 	"os"
+	"os/exec"
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/messages-go/v10"
 	"github.com/thanhpk/randstr"
+
+	t "text/template"
 )
 
 var luallaFanoSimpleDir = ".luallafano"
@@ -56,7 +61,32 @@ func iType(arg1 string) error {
 	return godog.ErrPending
 }
 
-func iTypeTheCommandAskingLuallafanoToRememberTheCommand(arg1 string) error {
+func iTypeTheCommandAskingLuallafanoToRememberTheCommand(lrc string) error {
+	shellCommands := struct {
+		Command string
+		Lrc string
+	}{
+		userCommand,
+		lrc,
+	}
+	commandSequence, err := t.New("commandSequence").Parse("{{.Command}}\n{{.Lrc}}\n")
+	if err != nil { panic(err) }
+	var script bytes.Buffer
+	err = commandSequence.Execute(&script, shellCommands)
+	if err != nil { panic(err) }
+	commandWrapper := exec.Command("sh")
+	commandWrapper.Stdin = strings.NewReader(script.String())
+	var out bytes.Buffer
+	var errOut bytes.Buffer
+	commandWrapper.Stdout = &out
+	commandWrapper.Stderr = &errOut
+	err = commandWrapper.Run()
+	if err != nil {
+		fmt.Println(out.String())
+		fmt.Println(errOut.String())
+		panic(err) 
+	}
+
 	return godog.ErrPending
 }
 
