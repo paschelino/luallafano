@@ -1,5 +1,12 @@
 # luallafano
 
+## Preconditions
+To build this application you need to install [go-task](https://taskfile.dev/#/installation). Then you can run
+- end2end tests with `task end2end_tests`
+- a build with `task build` that outputs the binary to `out/bin/lrc`
+
+Cleaning the build artifacts is done with `task clean`.
+
 ## TODO
 - [x] set up go module
 - [x] set up cucumber for go

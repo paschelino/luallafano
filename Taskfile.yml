@@ -1,0 +1,15 @@
+version: '3'
+tasks:
+  e2e_tests:
+    deps: [build]
+    cmds:
+      - godog
+
+  build:
+    cmds:
+      - mkdir -p ./out/bin
+      - go build -o ./out/bin/lrc
+
+  clean:
+    cmds:
+      - rm -r ./out
