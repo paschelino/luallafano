@@ -17,6 +17,7 @@ import (
 
 var luallaFanoSimpleDir = ".luallafano"
 var userCommand string
+var lrcOutputCurrent string
 var testHomeParentDir = defineTestHomeParentDir()
 var testHomeDir = fmt.Sprintf("%s/%s", testHomeParentDir, randstr.Hex(16))
 var luallaFanoDir = fmt.Sprintf("%s/%s", testHomeDir, luallaFanoSimpleDir)
@@ -36,10 +37,6 @@ func aDirectoryHierarchyIsBeingCreated(arg1 *messages.PickleStepArgument_PickleD
 }
 
 func aLuallafanoPromptIsShown() error {
-	return godog.ErrPending
-}
-
-func aLuallafanoPromptIsShownToEnterTheShortNameForTheCommand() error {
 	return godog.ErrPending
 }
 
@@ -67,7 +64,7 @@ func iTypeTheCommandAskingLuallafanoToRememberTheCommand(lrc string) error {
 		Lrc string
 	}{
 		userCommand,
-		lrc,
+		fmt.Sprintf("./out/bin/%s", lrc),
 	}
 	commandSequence, err := t.New("commandSequence").Parse("{{.Command}}\n{{.Lrc}}\n")
 	if err != nil { panic(err) }
@@ -81,13 +78,13 @@ func iTypeTheCommandAskingLuallafanoToRememberTheCommand(lrc string) error {
 	commandWrapper.Stdout = &out
 	commandWrapper.Stderr = &errOut
 	err = commandWrapper.Run()
+	lrcOutputCurrent = out.String()
 	if err != nil {
-		fmt.Println(out.String())
+		fmt.Println(lrcOutputCurrent)
 		fmt.Println(errOut.String())
 		panic(err) 
 	}
-
-	return godog.ErrPending
+	return nil
 }
 
 func iUseLuallafanoForTheFirstTime() error {
@@ -97,6 +94,10 @@ func iUseLuallafanoForTheFirstTime() error {
 }
 
 func luallafanoInformsTheUser(arg1 *messages.PickleStepArgument_PickleDocString) error {
+	fmt.Println("-----")
+	fmt.Println(lrcOutputCurrent)
+	fmt.Println(arg1)
+	fmt.Println("-----")
 	return godog.ErrPending
 }
 
@@ -122,13 +123,12 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^a directory hierarchy exists:$`, aDirectoryHierarchyExists)
 	ctx.Step(`^a directory hierarchy is being created:$`, aDirectoryHierarchyIsBeingCreated)
 	ctx.Step(`^a luallafano prompt is shown$`, aLuallafanoPromptIsShown)
-	ctx.Step(`^a luallafano prompt is shown to enter the short name for the command$`, aLuallafanoPromptIsShownToEnterTheShortNameForTheCommand)
 	ctx.Step(`^I enter "([^"]*)" into the luallafano prompt$`, iEnterIntoTheLuallafanoPrompt)
 	ctx.Step(`^I entered a complicated command on the CLI:$`, iEnteredAComplicatedCommandOnTheCLI)
 	ctx.Step(`^I type "([^"]*)"$`, iType)
 	ctx.Step(`^I type the command "([^"]*)" asking luallafano to remember the command$`, iTypeTheCommandAskingLuallafanoToRememberTheCommand)
 	ctx.Step(`^I use Luallafano for the first time$`, iUseLuallafanoForTheFirstTime)
-	ctx.Step(`^Luallafano informs the user:$`, luallafanoInformsTheUser)
+	ctx.Step(`^luallafano informs the user:$`, luallafanoInformsTheUser)
 	ctx.Step(`^the file "([^"]*)" is created with this content:$`, theFileIsCreatedWithThisContent)
 	ctx.Step(`^the output matches:$`, theOutputMatches)
 	ctx.Step(`^the symlink "([^"]*)" to "([^"]*)" is created$`, theSymlinkToIsCreated)

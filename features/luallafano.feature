@@ -1,6 +1,5 @@
 Feature: Remember the previous command
 
-
     Scenario: Create a first luallafano, a CLI shortcut with superpowers
         Given I entered a complicated command on the CLI:
             """
@@ -9,10 +8,14 @@ Feature: Remember the previous command
         And I use Luallafano for the first time
         
         When I type the command "lrc" asking luallafano to remember the command
-        And a luallafano prompt is shown to enter the short name for the command
-        
+        And luallafano informs the user:
+            """
+            Please give your new command a name you can easily remember:
+            """
+        And a luallafano prompt is shown
+
         When I enter "e" into the luallafano prompt
-        Then Luallafano informs the user:
+        Then luallafano informs the user:
             """
             Do you want to customize the command (Y/n)?
             """
@@ -29,7 +32,7 @@ Feature: Remember the previous command
             echo "Hello Luallafano!"
             """
         And the symlink "~/.luallafano/bin/e" to "~/.luallafano/echo/e" is created
-        And Luallafano informs the user:
+        And luallafano informs the user:
             """
             Hi!
             Thank you for using Luallafano 🌻
