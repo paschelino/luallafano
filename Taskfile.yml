@@ -5,10 +5,24 @@ tasks:
     cmds:
       - godog
 
+  e2e_test_binary:
+    deps: [prepare_out_dir]
+    cmds:
+      - godog build -o ./out/bin/lrc_e2e_tests.test
+
+  debug_e2e_tests:
+    deps: [e2e_test_binary]
+    cmds:
+      - dlv exec ./out/bin/lrc_e2e_tests.test
+
   build:
+    deps: [prepare_out_dir]
+    cmds:
+      - go build -o ./out/bin/lrc
+
+  prepare_out_dir:
     cmds:
       - mkdir -p ./out/bin
-      - go build -o ./out/bin/lrc
 
   clean:
     cmds:
