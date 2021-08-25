@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"os"
@@ -15,12 +16,12 @@ import (
 	t "text/template"
 )
 
-var luallaFanoSimpleDir = ".luallafano"
+var luallafanoSimpleDir = ".luallafano"
 var userCommand string
 var lrcOutputCurrent string
 var testHomeParentDir = defineTestHomeParentDir()
 var testHomeDir = fmt.Sprintf("%s/%s", testHomeParentDir, randstr.Hex(16))
-var luallaFanoDir = fmt.Sprintf("%s/%s", testHomeDir, luallaFanoSimpleDir)
+var luallafanoDir = fmt.Sprintf("%s/%s", testHomeDir, luallafanoSimpleDir)
 
 func defineTestHomeParentDir() string {
 	dirName, err := os.Getwd()
@@ -59,6 +60,7 @@ func iType(arg1 string) error {
 }
 
 func iTypeTheCommandAskingLuallafanoToRememberTheCommand(lrc string) error {
+	// in order to execute the command to remember and lrc after another, we first need to build a script:
 	shellCommands := struct {
 		Command string
 		Lrc string
@@ -71,34 +73,46 @@ func iTypeTheCommandAskingLuallafanoToRememberTheCommand(lrc string) error {
 	var script bytes.Buffer
 	err = commandSequence.Execute(&script, shellCommands)
 	if err != nil { panic(err) }
+
+	// then we need to send the script to a shell:
 	commandWrapper := exec.Command("sh")
 	commandWrapper.Stdin = strings.NewReader(script.String())
+
+	// capture the output of the script:
 	var out bytes.Buffer
 	var errOut bytes.Buffer
 	commandWrapper.Stdout = &out
 	commandWrapper.Stderr = &errOut
+
+	// run the script:
 	err = commandWrapper.Run()
 	lrcOutputCurrent = out.String()
 	if err != nil {
 		fmt.Println(lrcOutputCurrent)
 		fmt.Println(errOut.String())
 		panic(err) 
+	} else {
+		fmt.Println("Command ran successfully.")
 	}
 	return nil
 }
 
 func iUseLuallafanoForTheFirstTime() error {
-	_, err := os.Stat(luallaFanoDir)
+	_, err := os.Stat(luallafanoDir)
 	if err != nil { return nil }
-	return fmt.Errorf("Luallafano was already used. The directory '%s' already exists: %s", luallaFanoDir, err)
+	return fmt.Errorf("luallafano was already used. the directory '%s' already exists: %s", luallafanoDir, err)
 }
 
-func luallafanoInformsTheUser(arg1 *messages.PickleStepArgument_PickleDocString) error {
-	fmt.Println("-----")
-	fmt.Println(lrcOutputCurrent)
-	fmt.Println(arg1)
-	fmt.Println("-----")
-	return godog.ErrPending
+func luallafanoInformsTheUser(expectedOutput *messages.PickleStepArgument_PickleDocString) error {
+	r, _ := regexp.Compile(fmt.Sprintf("%s\n\\z", expectedOutput.Content))
+	match := r.MatchString(lrcOutputCurrent)
+
+	if match {
+		return nil
+	}
+
+	return fmt.Errorf("the output '%s' did not contain the expected last line '%s'",
+		lrcOutputCurrent, expectedOutput.Content)
 }
 
 func theFileIsCreatedWithThisContent(arg1 string, arg2 *messages.PickleStepArgument_PickleDocString) error {
